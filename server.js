@@ -22,13 +22,9 @@ app.post('/usuarios', async (req, res) => {
       name: req.body.name,
       age: req.body.age
     }
-
-
   });
 
   users.push(req.body)
-
-
   res.status(201).json()
   res.send("OK post")
 
@@ -37,14 +33,22 @@ app.post('/usuarios', async (req, res) => {
 // Get consulta, pegando informação do banco
 
 app.get('/usuarios', async (req, res) => {
+  let users = []
 
-  const users = await prisma.user.findMany()
+  if (req.query.name) {
+    users = await prisma.user.findMany({
+      where: {
+        name: req.query.name,
+        email: req.query.email,
+        age: req.query.age
+      }
+    })
+  } else {
+    users = await prisma.user.findMany()
+  }
+
   res.status(200).json(users)
-
-  console.log(req.query);
-
 })
-
 
 // PUT serve para editar dados, do servidor 
 
@@ -54,6 +58,7 @@ app.put('/usuarios/:id', async (req, res) => {
     where: {
       id: req.params.id
     },
+
     data: {
       email: req.body.email,
       name: req.body.name,
@@ -61,8 +66,6 @@ app.put('/usuarios/:id', async (req, res) => {
     }
   });
 })
-
-
 // DELETE serve para deletar do banco de dados
 
 app.delete('/usuarios/:id', async (req, res) => {
@@ -79,8 +82,6 @@ app.delete('/usuarios/:id', async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
-
-
 
 //  Porta para rodar o localHost 
 
