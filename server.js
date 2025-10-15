@@ -1,58 +1,69 @@
-  import express from 'express';
-  import pkg from '@prisma/client'; // usa o client padrão
-  const { PrismaClient } = pkg;
+// Importa as biblioteca, banco db, e prisma (uma fremework que ajuda na sixtaxe)
 
-  const prisma = new PrismaClient()
-  const app = express()
+import express from 'express';
+import pkg from '@prisma/client'; 
+const { PrismaClient } = pkg;
 
-  app.use(express.json())
+const prisma = new PrismaClient()
+const app = express()
 
-  const users = []
+app.use(express.json())
 
-
-  app.post('/usuarios', async (req, res) => {
-
-    await prisma.user.create({
-      data: {
-        email: req.body.email,
-        name: req.body.name,
-        age: req.body.age
-      }
+const users = []
 
 
-    });
+// POST serve para mandar as infor
+
+app.post('/usuarios', async (req, res) => {
+
+  await prisma.user.create({
+    data: {
+      email: req.body.email,
+      name: req.body.name,
+      age: req.body.age
+    }
 
 
-    users.push(req.body)
+  });
+
+  users.push(req.body)
 
 
+  res.status(201).json()
+  res.send("OK post")
 
-    res.status(201).json()
+})
 
-    res.send("OK post")
+// Get consulta, pegando informação do banco
 
-  })
+app.get('/usuarios', async (req, res) => {
 
-  app.get('/usuarios', async (req, res) => {
+  const users = await prisma.user.findMany()
+  res.status(200).json(users)
 
-    const users = await prisma.user.findMany()
-    res.status(200).json(users)
+  console.log(req.query);
 
-  })
+})
 
-  app.put('/usuarios/:id', async (req, res) => {
 
-    await prisma.user.update({
-      where: {
-        id: req.params.id
-      },
-      data: {
-        email: req.body.email,
-        name: req.body.name,
-        age: req.body.age
-      }
-    });
-  })
+// PUT serve para editar dados, do servidor 
+
+app.put('/usuarios/:id', async (req, res) => {
+
+  await prisma.user.update({
+    where: {
+      id: req.params.id
+    },
+    data: {
+      email: req.body.email,
+      name: req.body.name,
+      age: req.body.age
+    }
+  });
+})
+
+
+// DELETE serve para deletar do banco de dados
 
 app.delete('/usuarios/:id', async (req, res) => {
   try {
@@ -71,6 +82,8 @@ app.delete('/usuarios/:id', async (req, res) => {
 
 
 
-  app.listen(3000, () => {
-    console.log('Servidor rodando na porta 3000 🚀');
-  });
+//  Porta para rodar o localHost 
+
+app.listen(3000, () => {
+  console.log('Servidor rodando na porta 3000 🚀');
+});
